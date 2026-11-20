@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JanDrop — local drop &amp; share</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <svg class="logo" width="34" height="34" viewBox="0 0 48 48" aria-hidden="true">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#818cf8"/>
+              <stop offset="1" stop-color="#4f46e5"/>
+            </linearGradient>
+          </defs>
+          <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#logoGrad)"/>
+          <path d="M24 10v16m0 0l-7-7m7 7l7-7" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <path d="M12 32v3a4 4 0 0 0 4 4h16a4 4 0 0 0 4-4v-3" stroke="#fff" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+        </svg>
+        <div class="brand-text">
+          <h1>JanDrop</h1>
+          <p>local network drop &amp; clipboard</p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <div class="devices-chip" id="devicesChip" title="Devices connected right now">
+          <span class="dot"></span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/>
+          </svg>
+          <span id="deviceCount">–</span>&nbsp;<span class="devices-word">online</span>
+        </div>
+        <button class="btn ghost" id="qrBtn" title="Show QR code to connect a phone">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1M14 20h1M18 18h3v3h-3z"/>
+          </svg>
+          QR
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- Drop & share zone -->
+    <section class="card composer">
+      <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload files">
+        <input type="file" id="fileInput" multiple hidden>
+        <svg class="dz-icon" width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5"/>
+          <path d="M20 16.5A3.5 3.5 0 0 0 16.5 13h-1.6A5.5 5.5 0 1 0 6 17.6"/>
+        </svg>
+        <p class="dz-title">Drop files here</p>
+        <p class="dz-sub">or <span class="dz-browse">click to browse</span> — any size, streamed straight to disk</p>
+      </div>
+
+      <div class="upload-progress" id="uploadProgress" hidden>
+        <div class="up-row">
+          <span class="up-name" id="uploadName">file.bin</span>
+          <span class="up-stats" id="uploadStats">0 MB / 0 MB · 0%</span>
+        </div>
+        <div class="bar"><div class="bar-fill" id="uploadBar"></div></div>
+      </div>
+
+      <div class="paste-row">
+        <input id="textInput" type="text" placeholder="Paste a URL, code snippet, or note…" autocomplete="off" spellcheck="false">
+        <button class="btn primary" id="shareBtn">Share</button>
+      </div>
+
+      <div class="expiry-row">
+        <span class="expiry-label">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>
+          </svg>
+          Expires
+        </span>
+        <div class="pills" id="expiryPills">
+          <button class="pill active" data-value="never">Never</button>
+          <button class="pill" data-value="1h">1 Hour</button>
+          <button class="pill" data-value="24h">24 Hours</button>
+          <button class="pill burn" data-value="burn" title="Item is deleted after its first download">🔥 Burn after 1 download</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live feed -->
+    <section class="feed">
+      <div class="feed-header">
+        <h2>Shared feed <span class="count" id="itemCount"></span></h2>
+        <div class="feed-actions">
+          <button class="btn ghost small" id="clearExpiredBtn">Clear expired</button>
+          <button class="btn danger small" id="clearAllBtn">Clear all</button>
+        </div>
+      </div>
+      <div class="feed-list" id="feedList"></div>
+      <div class="empty" id="emptyState">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 16V4m0 0l-4.5 4.5M12 4l4.5 4.5"/>
+          <path d="M20 16.5A3.5 3.5 0 0 0 16.5 13h-1.6A5.5 5.5 0 1 0 6 17.6"/>
+        </svg>
+        <p>Nothing shared yet.<br>Drop a file or paste some text above.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- QR modal -->
+  <div class="modal-backdrop" id="qrModal" hidden>
+    <div class="modal qr-modal" role="dialog" aria-modal="true" aria-label="Scan to connect">
+      <h3>Scan to connect</h3>
+      <p class="modal-sub">Open this URL on any device on the same network.</p>
+      <div class="qr-frame" id="qrCode" aria-busy="true"></div>
+      <p class="qr-url mono" id="qrUrl"></p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="qrCopyBtn">Copy URL</button>
+        <button class="btn primary" id="qrCloseBtn">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirm modal -->
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="confirmTitle">Are you sure?</h3>
+      <p class="modal-sub" id="confirmMessage"></p>
+      <div class="modal-actions">
+        <button class="btn ghost" id="confirmCancelBtn">Cancel</button>
+        <button class="btn danger" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toasts" id="toasts"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
