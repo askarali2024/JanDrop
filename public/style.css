@@ -432,7 +432,16 @@ body {
 .badge.burn     { color: var(--burn); background: rgba(251, 146, 60, 0.08); border-color: rgba(251, 146, 60, 0.30); }
 .badge.burned   { color: var(--danger); background: rgba(248, 113, 113, 0.08); border-color: rgba(248, 113, 113, 0.30); }
 
-.item-actions { display: flex; flex-direction: column; gap: 6px; flex: 0 0 auto; align-items: stretch; }
+/* Horizontal action row — compact, wraps on narrow cards */
+.item-actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+}
 
 .item-actions .btn { justify-content: center; }
 
@@ -459,11 +468,21 @@ body {
 
 /* Media preview */
 
-.preview { margin-top: 4px; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #0b0d15; }
+/* Media preview — container hugs the media so portrait photos show no
+   letterbox bars; height capped to keep the feed compact */
+.preview {
+  margin-top: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b0d15;
+  width: fit-content;
+  max-width: 100%;
+}
 
-.preview img { display: block; max-width: 100%; max-height: 260px; margin: 0 auto; }
+.preview img { display: block; max-width: 100%; max-height: 192px; width: auto; height: auto; }
 
-.preview video { display: block; max-width: 100%; max-height: 280px; }
+.preview video { display: block; max-width: 100%; max-height: 240px; width: auto; }
 
 .preview.audio { border: none; background: transparent; padding: 0; }
 .preview.audio audio { width: min(100%, 380px); height: 38px; }
@@ -579,7 +598,7 @@ body {
   .brand-text p { display: none; }
   .devices-word { display: none; }
   .item-card { flex-direction: column; }
-  .item-actions { flex-direction: row; width: 100%; }
+  .item-actions { width: 100%; justify-content: flex-start; }
   .item-actions .btn { flex: 1; }
   .composer { padding: 14px; }
 }
