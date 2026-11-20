@@ -90,7 +90,7 @@ MAX_FILE_SIZE_MB=2048 UPLOAD_DIR=/mnt/share/jandrop npm start
 
 - `never` — item stays until manually deleted
 - `1h` / `24h` — auto-deleted by the cleanup worker once expired
-- `burn` — files are deleted right after their **first full download** (partial `Range` requests from video scrubbing don't count); text snippets are deleted right after their **first copy**
+- `burn` — files are deleted right after their **first full download** (preview fetches and partial `Range` requests from video scrubbing don't count); text snippets are deleted right after their **first copy**
 
 ## Notes
 

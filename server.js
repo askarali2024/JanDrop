@@ -432,11 +432,14 @@ app.get('/api/items/:id/download', async (req, res) => {
   // "bytes=0-" range (what browsers send for the initial media load).
   // Partial/seek ranges (e.g. "bytes=5000-") do not count, so scrubbing a
   // video preview does not consume burn-after-download items.
+  // Preview requests (?inline=1 — <img>/<video>/<audio> cards) never count
+  // either: otherwise simply rendering a burn photo in the feed would
+  // consume it the moment its preview loads.
   const rangeHeader = typeof req.headers.range === 'string' ? req.headers.range.trim() : '';
   const isFullFetch = !rangeHeader || /^bytes=0-$/i.test(rangeHeader);
   let burnAfterResponse = false;
 
-  if (req.method === 'GET' && isFullFetch) {
+  if (req.method === 'GET' && isFullFetch && !inline) {
     item.downloadCount += 1;
     scheduleSave();
     broadcastSse('item:updated', { id: item.id, downloadCount: item.downloadCount });
