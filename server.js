@@ -192,12 +192,45 @@ app.get('/api/items', (req, res) => {
 /* Server info (LAN URL for QR) ------------------------------------------- */
 
 function lanUrl() {
-  for (const list of Object.values(os.networkInterfaces())) {
+  return `http://${pickLanIp()}:${PORT}`;
+}
+
+/**
+ * Pick the LAN IP other devices can actually reach.
+ * os.networkInterfaces() order is arbitrary — on machines with VirtualBox,
+ * VMware, or WSL adapters the first non-internal IP is often a virtual
+ * network (e.g. VirtualBox's 192.168.56.1) that no phone can connect to.
+ *
+ * Strategy: ask the OS which local address outbound traffic would use, by
+ * "connecting" a UDP socket to a public IP. UDP connect sends no packets —
+ * it only makes the kernel pick a route — so this works offline too.
+ */
+function pickLanIp() {
+  try {
+    const dgram = require('dgram');
+    const sock = dgram.createSocket('udp4');
+    sock.connect(53, '8.8.8.8');
+    const ip = sock.address().address;
+    sock.close();
+    if (ip && !ip.startsWith('127.')) return ip;
+  } catch {
+    /* no route at all (fully offline) — fall through */
+  }
+  // Fallback: first non-internal IPv4, skipping common virtual-adapter
+  // subnets (VirtualBox host-only 192.168.56.x/192.168.85.x, WSL 172.x).
+  const virtual = [/^192\.168\.(56|85)\./, /^172\.(1[6-9]|2\d|3[01])\./];
+  const lists = Object.values(os.networkInterfaces());
+  const candidates = [];
+  for (const list of lists) {
     for (const addr of list || []) {
-      if (addr.family === 'IPv4' && !addr.internal) return `http://${addr.address}:${PORT}`;
+      if (addr.family === 'IPv4' && !addr.internal) candidates.push(addr.address);
     }
   }
-  return `http://localhost:${PORT}`;
+  return (
+    candidates.find((ip) => !virtual.some((re) => re.test(ip))) ||
+    candidates[0] ||
+    'localhost'
+  );
 }
 
 app.get('/api/server-info', (req, res) => {
