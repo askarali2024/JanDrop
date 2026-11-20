@@ -79,6 +79,7 @@ MAX_FILE_SIZE_MB=2048 UPLOAD_DIR=/mnt/share/jandrop npm start
 | `POST`   | `/api/text`                  | Share a text snippet (`{ "text": "...", "expires": "1h" }`)        |
 | `GET`    | `/api/items/:id/download`   | Stream a file (`Content-Disposition` + HTTP Range; `?inline=1` for preview) |
 | `DELETE` | `/api/items/:id`             | Delete an item and its file on disk                                |
+| `POST`   | `/api/items/:id/copy`        | Register a text-snippet copy (counts toward burn)                  |
 | `POST`   | `/api/items/clear-expired`   | Immediately remove expired items                                   |
 | `POST`   | `/api/items/clear-all`       | Remove everything                                                  |
 | `GET`    | `/api/events`                | SSE stream: `item:created`, `item:deleted`, `item:updated`, `clients`, heartbeat every 25s |
@@ -89,7 +90,7 @@ MAX_FILE_SIZE_MB=2048 UPLOAD_DIR=/mnt/share/jandrop npm start
 
 - `never` — item stays until manually deleted
 - `1h` / `24h` — auto-deleted by the cleanup worker once expired
-- `burn` — deleted automatically right after its **first full download** (partial `Range` requests from video scrubbing don't count)
+- `burn` — files are deleted right after their **first full download** (partial `Range` requests from video scrubbing don't count); text snippets are deleted right after their **first copy**
 
 ## Notes
 

@@ -138,8 +138,9 @@
     }
     if (item.maxDownloads != null) {
       const remaining = Math.max(0, item.maxDownloads - item.downloadCount);
+      const unit = item.type === 'text' ? 'copy' : 'download';
       if (remaining > 0) {
-        out.push(`<span class="badge burn" data-downloads>🔥 ${remaining} download${remaining === 1 ? '' : 's'} left</span>`);
+        out.push(`<span class="badge burn" data-downloads>🔥 ${remaining} ${unit}${remaining === 1 ? '' : 's'} left</span>`);
       } else {
         out.push('<span class="badge burned" data-downloads>🔥 burned</span>');
       }
@@ -212,6 +213,9 @@
     const count = state.items.size;
     els.itemCount.textContent = count ? `(${count})` : '';
     els.emptyState.hidden = count > 0;
+    const empty = count === 0;
+    els.clearExpiredBtn.disabled = empty;
+    els.clearAllBtn.disabled = empty;
   }
 
   function addItem(item, { prepend = true } = {}) {
@@ -377,8 +381,9 @@
 
   /* ─────────────────────────── UI actions ─────────────────────────── */
 
-  function copyToClipboard(text, btn, label = 'Copy') {
+  function copyToClipboard(text, btn, label = 'Copy', after) {
     const done = () => {
+      if (after) after();
       btn.classList.add('copied');
       btn.innerHTML = 'Copied ✓';
       setTimeout(() => {
@@ -573,7 +578,14 @@
         copyToClipboard(`${location.origin}/api/items/${id}/download`, btn, 'Link');
         break;
       case 'copy-text':
-        copyToClipboard(item.text || '', btn, 'Copy');
+        copyToClipboard(item.text || '', btn, 'Copy', async () => {
+          try {
+            const r = await api(`/api/items/${id}/copy`, { method: 'POST' });
+            if (r.burned) toast('🔥 Snippet burned after copy', 'success');
+          } catch {
+            /* non-fatal: the copy itself already succeeded */
+          }
+        });
         break;
       case 'delete':
         deleteItem(id);

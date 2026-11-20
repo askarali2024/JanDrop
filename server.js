@@ -390,6 +390,24 @@ app.post('/api/text', express.json({ limit: '2mb' }), (req, res) => {
   res.status(201).json({ item: publicItem(item) });
 });
 
+/* Text snippet copy (burn counting) -------------------------------------- */
+
+app.post('/api/items/:id/copy', (req, res) => {
+  const item = items.get(req.params.id);
+  if (!item || item.type !== 'text') return res.status(404).json({ error: 'Item not found' });
+
+  item.downloadCount += 1;
+  scheduleSave();
+  broadcastSse('item:updated', { id: item.id, downloadCount: item.downloadCount });
+
+  // For burn items, a copy is the single use.
+  if (item.maxDownloads != null && item.downloadCount >= item.maxDownloads) {
+    deleteItem(item.id, 'burned'); // broadcasts item:deleted
+    return res.json({ ok: true, burned: true });
+  }
+  res.json({ ok: true, burned: false });
+});
+
 /* Download (stream + HTTP Range support) --------------------------------- */
 
 app.get('/api/items/:id/download', async (req, res) => {
