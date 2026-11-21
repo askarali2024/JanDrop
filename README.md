@@ -48,8 +48,8 @@ A lightweight, self-hosted **local network file sharing & clipboard hub**. Drop 
 npm install
 npm start
 # ✔ JanDrop is up
-#   Local:    http://localhost:3000
-#   LAN:      http://192.168.x.x:3000
+#   Local:    http://localhost:3001
+#   LAN:      http://192.168.x.x:3001
 ```
 
 Open the LAN URL on any device on the same network, or click the **QR** button in the header and scan it with your phone.
@@ -58,7 +58,7 @@ Open the LAN URL on any device on the same network, or click the **QR** button i
 
 | Variable          | Default   | Description                                            |
 | ----------------- | --------- | ------------------------------------------------------ |
-| `PORT`            | `3000`    | HTTP port to listen on                                  |
+| `PORT`            | `3001`    | HTTP port to listen on                                  |
 | `UPLOAD_DIR`      | `./uploads` | Directory where uploaded files are stored            |
 | `DATA_DIR`        | `./data`  | Directory for the `items.json` metadata store           |
 | `MAX_FILE_SIZE_MB`| unlimited | Optional per-file cap in MB; uploads over it get `413` |

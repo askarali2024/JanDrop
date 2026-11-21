@@ -23,7 +23,7 @@ const QRCode = require('qrcode');
 
 /* ────────────────────────────── Configuration ───────────────────────────── */
 
-const PORT = Number.parseInt(process.env.PORT || '3000', 10) || 3000;
+const PORT = Number.parseInt(process.env.PORT || '3001', 10) || 3001;
 const UPLOAD_DIR = path.resolve(process.env.UPLOAD_DIR || path.join(__dirname, 'uploads'));
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(__dirname, 'data'));
 const DB_FILE = path.join(DATA_DIR, 'items.json');
